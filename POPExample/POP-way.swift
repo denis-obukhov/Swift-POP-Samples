@@ -9,18 +9,18 @@ import SwiftUI
 
 // Protocol-oriented way
 
-// Model for a text input. Adopts BaseModel as it contains a name and Validating protocol to check if input text isn't empty
+// Model for a text input. Adopts BaseModel as it contains a name and Validating protocol to check if input text is empty
 final class TextModel: BaseModel, Validating {
     var name: String = ""
-    @Published var inputText: String = ""
+    var inputText: String = ""
     @Published var isValid: Bool?
     
     init(name: String) {
         self.name = name
     }
     
-    func validate() {
-        isValid = !inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    func validate(_ value: String) {
+        isValid = !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 }
 
@@ -37,8 +37,9 @@ final class ColorModel: BaseModel {
 
 // Protocol for a validating entity
 protocol Validating {
+    associatedtype V // V is for vendetta
     var isValid: Bool? { get }
-    func validate()
+    func validate(_ value: V)
 }
 
 // Basic model
@@ -68,8 +69,11 @@ extension PickerCell {
     }
 }
 
-// Contrains Model type to be Validating as we're going to call `validate()` and bind to `isValid` value
-protocol ValidatingPickerCell: PickerCell where Model: Validating {}
+// Constrains Model type to be Validating as we're going to call `validate()` and bind to `isValid` value
+protocol ValidatingPickerCell: PickerCell where Model: Validating, V == Model.V {
+    associatedtype V: Equatable
+    var currentValue: V { get set }
+}
 
 // Add some validation UI
 extension ValidatingPickerCell {
@@ -80,33 +84,37 @@ extension ValidatingPickerCell {
                     .layoutPriority(1)
                 Spacer(minLength: 20)
                 cellBody
-                    .onSubmit {
-                        model.validate()
-                    }
             }
             if model.isValid == false {
                 Text("Invalid value")
                     .foregroundColor(.red)
             }
         }
+        .onChange(of: currentValue) {
+            model.validate($0)
+        }
     }
 }
 
 struct TextFieldCell<T: TextModel>: ValidatingPickerCell {
-    @ObservedObject var model: T
+    @StateObject var model: T
+    @State var currentValue: String = ""
     
     // var body is used from default implementation
-    // Less code, more reusable
+    // Less code, more reusable and versatile
     var cellBody: some View {
-        TextField("Enter text", text: $model.inputText)
+        TextField("Enter text (not empty)", text: $currentValue)
+            .onChange(of: model.isValid ?? false) {
+                model.inputText = $0 ? currentValue : ""
+            }
     }
 }
 
 struct ColorPickerCell<T: ColorModel>: PickerCell {
-    @ObservedObject var model: T
+    @StateObject var model: T
     
     // var body is used from default implementation
-    // Less code, more reusable
+    // Less code, more reusable and versatile
     var cellBody: some View {
         Picker("Pick a color", selection: $model.pickedColor) {
             ForEach(model.colors, id: \.self) {

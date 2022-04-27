@@ -16,7 +16,7 @@ struct POPExampleApp: App {
             NavigationView {
                 Form {
                     TextFieldCell(model: TextModel(name: "Full name:"))
-                    ColorPickerCell(model: ColorModel(name: "Age:"))
+                    ColorPickerCell(model: ColorModel(name: "Color:"))
                 }
             }
         }

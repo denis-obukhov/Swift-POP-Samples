@@ -9,11 +9,11 @@ import SwiftUI
 
 // Compositional/OOP way
 
-final class TextModel: ValidatingModel {
+final class TextModel: ValidatingModel<String> {
     @Published var inputText: String = ""
     
-    override func validate() {
-        isValid = !inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    override func validate(_ value: String) {
+        isValid = !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 }
 
@@ -22,9 +22,9 @@ final class ColorModel: BaseModel {
     let colors: [Color] = [.red, .green, .blue, .brown, .cyan, .mint]
 }
 
-class ValidatingModel: BaseModel {
+class ValidatingModel<T>: BaseModel {
     @Published var isValid: Bool?
-    func validate() { fatalError("To implement in an ancestor") }
+    func validate(_ value: T) { fatalError("To implement in an successor") }
 }
 
 class BaseModel: ObservableObject {
@@ -53,20 +53,22 @@ struct BaseCell<T: View>: View {
 
 struct TextFieldCell: View {
     @StateObject var model: TextModel
+    @State var currentValue: String = ""
     
     var body: some View {
         VStack {
-            BaseCell(title: model.name) {
-                TextField("Enter text", text: $model.inputText)
-                    .onSubmit {
-                        model.validate()
-                    }
+            BaseCell(title: model.name) { // Should add it for every cell
+                TextField("Enter text (not empty)", text: $currentValue)
             }
             
             if model.isValid == false {
                 Text("Invalid value")
                     .foregroundColor(.red)
             }
+        }
+        .onChange(of: currentValue) {
+            model.validate($0)
+            model.inputText = (model.isValid ?? false) ? currentValue : ""
         }
     }
 }
@@ -75,7 +77,7 @@ struct ColorPickerCell: View {
     @StateObject var model: ColorModel
     
     var body: some View {
-        BaseCell(title: model.name) {
+        BaseCell(title: model.name) { // Should add it for every cell
             Picker("Pick a color", selection: $model.pickedColor) {
                 ForEach(model.colors, id: \.self) {
                     $0.tag($0 as Color?)

@@ -10,7 +10,7 @@
 		36680943281975A20020866A /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36680942281975A20020866A /* App.swift */; };
 		36680947281975A30020866A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 36680946281975A30020866A /* Assets.xcassets */; };
 		3668094A281975A30020866A /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 36680949281975A30020866A /* Preview Assets.xcassets */; };
-		36680956281982F00020866A /* POP-way.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3668095228197AC80020866A /* POP-way.swift */; };
+		366809592819B0F40020866A /* OOP-Compositional-way.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3668095028197AB00020866A /* OOP-Compositional-way.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -139,7 +139,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				36680956281982F00020866A /* POP-way.swift in Sources */,
+				366809592819B0F40020866A /* OOP-Compositional-way.swift in Sources */,
 				36680943281975A20020866A /* App.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
